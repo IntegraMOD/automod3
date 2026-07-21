@@ -37,9 +37,10 @@ if ($user->data['user_type'] != USER_FOUNDER || // Only founders can access this
 if (headers_sent() || !@file_exists($filename) || !@is_readable($filename))
 {
 	// PHP track_errors setting On?
-	if (!empty($php_errormsg))
+	$last_error = error_get_last();
+	if (!empty($last_error))
 	{
-		trigger_error($user->lang['UNABLE_TO_DELIVER_FILE'] . '<br />' . sprintf($user->lang['TRACKED_PHP_ERROR'], $php_errormsg));
+		trigger_error($user->lang['UNABLE_TO_DELIVER_FILE'] . '<br />' . sprintf($user->lang['TRACKED_PHP_ERROR'], $last_error['message']));
 	}
 
 	trigger_error('UNABLE_TO_DELIVER_FILE');

@@ -341,14 +341,26 @@ class acp_mods
 
 		($sort_key == 't')? $sort='mod_time' & $s_sort_key='mod_time': $sort='mod_name' & $s_sort_key='mod_name';
 		($sort_dir == 'd') ? $dir='DESC' &  $s_sort_dir='DESC' : $dir='ASC' & $s_sort_dir='ASC';
-		$limit_days = array();
-		$s_limit_days=$sort_days=$s_limit_days = $u_sort_param = '';
-		gen_sort_selects($limit_days, $sort_by_text, $sort_days, $sort_key, $sort_dir, $s_limit_days, $s_sort_key, $s_sort_dir, $u_sort_param);
+
+		// Build sort key select dropdown HTML
+		$s_sort_key_select = '<select name="sk">';
+		foreach ($sort_by_text as $key => $text)
+		{
+			$selected = ($sort_key == $key) ? ' selected="selected"' : '';
+			$s_sort_key_select .= "<option value=\"$key\"$selected>$text</option>";
+		}
+		$s_sort_key_select .= '</select>';
+
+		// Build sort direction select dropdown HTML
+		$s_sort_dir_select = '<select name="sd">';
+		$s_sort_dir_select .= '<option value="a"' . (($sort_dir == 'a') ? ' selected="selected"' : '') . '>' . $user->lang['ASCENDING'] . '</option>';
+		$s_sort_dir_select .= '<option value="d"' . (($sort_dir == 'd') ? ' selected="selected"' : '') . '>' . $user->lang['DESCENDING'] . '</option>';
+		$s_sort_dir_select .= '</select>';
 
 		$template->assign_vars(array(
-				'S_SORT_KEY'	=> $s_sort_key,
-				'S_SORT_DIR'	=> $s_sort_dir,
-				'U_SORT_ACTION'		=> $this->u_action ."&amp;$u_sort_param"
+				'S_SORT_KEY'	=> $s_sort_key_select,
+				'S_SORT_DIR'	=> $s_sort_dir_select,
+				'U_SORT_ACTION'		=> $this->u_action
 		));
 		// The MOD name is a array so it can't be used as sort key directly.
 		$sql_sort = ($sort_key == 't') ? " ORDER BY mod_time $dir" : '';
@@ -759,6 +771,12 @@ class acp_mods
 			$this->parser->set_file($mod_path);
 
 			$details = $this->parser->get_details();
+
+			// Safety check: if parsing failed, return empty array
+			if ($details === false)
+			{
+				return array();
+			}
 
 			if ($find_children)
 			{
@@ -1676,9 +1694,14 @@ class acp_mods
 		if (!is_readable($dir))
 		{
 			trigger_error(sprintf($user->lang['NEED_READ_PERMISSIONS'], $dir), E_USER_WARNING);
+			return array();
 		}
 
 		$dp = opendir($dir);
+		if ($dp === false)
+		{
+			return array();
+		}
 		while (($file = readdir($dp)) !== false)
 		{
 			if ($file[0] != '.' && strpos("$dir/$file", '_edited') === false && strpos("$dir/$file", '_backups') === false)
@@ -1708,7 +1731,7 @@ class acp_mods
 					else
 					{
 						$check = end($mods['main']);
-						$check = $check['href'];
+						$check = ($check !== false) ? $check['href'] : '';
 
 						// we take the first file alphabetically with install in the filename
 						if (!$check || dirname($check) == $dir)
@@ -1751,8 +1774,12 @@ class acp_mods
 					}
 				}
 			}
-		}
-		closedir($dp);
+			}
+
+			if ($dp !== false)
+			{
+				closedir($dp);
+			}
 
 		return $mods;
 	}
@@ -2090,9 +2117,9 @@ class acp_mods
 			$template->assign_var('S_NEW_FILES', true);
 
 			// Because foreach operates on a copy of the specified array and not the array itself,
-			// we cannot rely on the array pointer while using it, so we use a while loop w/ each()
+			// we cannot rely on the array pointer while using it, so we use a foreach with reference
 			// We need array pointer to rewind the loop when is_array($target) (See Ticket #62341)
-			while (list($source, $target) = each($actions['NEW_FILES']))
+			foreach ($actions['NEW_FILES'] as $source => &$target)
 			{
 				if (is_array($target))
 				{
@@ -2104,7 +2131,6 @@ class acp_mods
 
 					// Shift off first target, then rewind array pointer to get next target
 					$target = array_shift($actions['NEW_FILES'][$source]);
-					prev($actions['NEW_FILES']);
 				}
 
 				if ($change && ($mod_installed || $force_install))
@@ -2158,9 +2184,9 @@ class acp_mods
 				$directories['del'] = array();
 
 				// Because foreach operates on a copy of the specified array and not the array itself,
-				// we cannot rely on the array pointer while using it, so we use a while loop w/ each()
+				// we cannot rely on the array pointer while using it, so we use a foreach with reference
 				// We need array pointer to rewind the loop when is_array($target) (See Ticket #62341)
-				while (list($source, $target) = each($actions['DELETE_FILES']))
+				foreach ($actions['DELETE_FILES'] as $source => &$target)
 				{
 					if (is_array($target))
 					{
@@ -2172,7 +2198,6 @@ class acp_mods
 
 						// Shift off first target, then rewind array pointer to get next target
 						$target = array_shift($actions['DELETE_FILES'][$source]);
-						prev($actions['DELETE_FILES']);
 					}
 
 					// Some MODs include 'umil/', avoid deleting!

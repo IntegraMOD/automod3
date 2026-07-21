@@ -33,13 +33,14 @@ if (!defined('IN_PHPBB'))
 */
 class parser
 {
-	var $parser;
+	public $parser;
 
 	/**
 	* constructor, sets type of parser
 	*/
-	function parser($ext)
+	function __construct($ext)
 	{
+		$this->parser = null;
 		switch ($ext)
 		{
 			case 'xml':
@@ -53,21 +54,37 @@ class parser
 
 	function set_file($file)
 	{
+		if ($this->parser === null)
+		{
+			return false;
+		}
 		$this->parser->set_file($file);
 	}
 
 	function get_details()
 	{
+		if ($this->parser === null)
+		{
+			return false;
+		}
 		return $this->parser->get_details();
 	}
 
 	function get_actions()
 	{
+		if ($this->parser === null)
+		{
+			return false;
+		}
 		return $this->parser->get_actions();
 	}
 
 	function get_modx_version()
 	{
+		if ($this->parser === null)
+		{
+			return false;
+		}
 		if (!$this->parser->modx_version)
 		{
 			$this->get_details();
@@ -80,7 +97,7 @@ class parser
 	* Returns the needed sql query to reverse the actions taken by the given query
 	* @todo: Add more
 	*/
-	function reverse_query($orig_query)
+	public static function reverse_query($orig_query)
 	{
 		if (preg_match('#ALTER TABLE\s([a-z_]+)\sADD(?:\sCOLUMN)?\s([a-z_]+)#i', $orig_query, $matches))
 		{
@@ -99,7 +116,7 @@ class parser
 	*
 	* @param array $sql_query
 	*/
-	function parse_sql(&$sql_query)
+	public static function parse_sql(&$sql_query)
 	{
 		global $dbms, $table_prefix;
 
@@ -144,7 +161,7 @@ class parser
 	* Returns the edits array, but now filled with edits to reverse the given array
 	* @todo: Add more
 	*/
-	function reverse_edits($actions)
+	public static function reverse_edits($actions)
 	{
 		$reverse_edits = array();
 
@@ -268,9 +285,9 @@ class parser
 */
 class parser_xml
 {
-	var $data;
-	var $file;
-	var $modx_version;
+	public $data;
+	public $file;
+	public $modx_version;
 
 	/**
 	* set data to read from
@@ -796,9 +813,9 @@ class parser_xml
 */
 class xml_array
 {
-	var $output = array();
-	var $parser;
-	var $XML;
+	public $output = array();
+	public $parser;
+	public $XML;
 
 	function parse($file, $XML)
 	{

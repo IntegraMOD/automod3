@@ -132,7 +132,7 @@ class umil
 	/**
 	* Constructor
 	*/
-	function umil($stand_alone = false, $db = false)
+	public function __construct($stand_alone = false, $db = false)
 	{
 		// Setup $this->db
 		if ($db !== false)
@@ -300,11 +300,11 @@ class umil
 
 		// Set up the command.  This will get the arguments sent to the function.
 		$args = func_get_args();
-		if (sizeof($args))
+		if (count($args))
 		{
 			$lang_key = array_shift($args);
 
-			if (sizeof($args))
+			if (count($args))
 			{
 				$lang_args = array();
 				foreach ($args as $arg)
@@ -873,7 +873,7 @@ class umil
 						$matches = array();
 						preg_match_all('/@import url\(["\'](.*)["\']\);/i', $stylesheet, $matches);
 
-						if (sizeof($matches))
+						if (count($matches))
 						{
 							foreach ($matches[0] as $idx => $match)
 							{
@@ -1846,7 +1846,7 @@ class umil
 		}
 		$this->db->sql_freeresult($result);
 
-		if (!sizeof($new_auth))
+		if (!count($new_auth))
 		{
 			return false;
 		}
@@ -2456,7 +2456,7 @@ class umil
 			return;
 		}
 
-		if (!sizeof($data))
+		if (!count($data))
 		{
 			return $this->umil_end('FAIL');
 		}
@@ -2492,17 +2492,17 @@ class umil
 		// Multicall
 		if ($this->multicall(__FUNCTION__, $table_name))
 		{
-			return;
-		}
+				return;
+			}
 
-		if (!sizeof($data))
-		{
-			return $this->umil_end('FAIL');
-		}
+			if (!count($data))
+			{
+				return $this->umil_end('FAIL');
+			}
 
-		$this->get_table_name($table_name);
+			$this->get_table_name($table_name);
 
-		$this->umil_start('TABLE_ROW_REMOVE_DATA', $table_name);
+			$this->umil_start('TABLE_ROW_REMOVE_DATA', $table_name);
 
 		if (!$this->table_exists($table_name))
 		{
@@ -2945,7 +2945,7 @@ class umil
 					case 'oracle':
 						if ($key_data[0] == 'UNIQUE')
 						{
-							continue;
+							continue 2;
 						}
 
 						$sql .= ($key_data[0] == 'INDEX') ? 'CREATE INDEX' : '';

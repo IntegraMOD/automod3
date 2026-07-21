@@ -31,59 +31,59 @@ class editor
 	/**
 	* Holds contents of file
 	*/
-	var $file_contents = '';
+	public $file_contents = '';
 
 	/**
 	* Holds the filename of the currently open file
 	*/
-	var $open_filename = '';
+	public $open_filename = '';
 
 	/**
 	* Full action array with complete finds
 	*/
-	var $mod_actions = array();
+	public $mod_actions = array();
 
 	/**
 	* One of the three constants defined in functions_mods.php
 	*/
-	var $write_method = 0;
+	public $write_method = 0;
 
 	/**
 	* Keeps finds sequential, plus loop optimization
 	*/
-	var $start_index = 0;
+	public $start_index = 0;
 
 	/*
 	* Keeps inline find sequential
 	*/
-	var $last_string_offset = 0;
+	public $last_string_offset = 0;
 
 	/*
 	* Only apply string offset to the line to which it belongs
 	*/
-	var $last_inline_ary_offset = 0;
+	public $last_inline_ary_offset = 0;
 
 	/**
 	* Time when MOD was installed
 	*/
-	var $install_time = 0;
+	public $install_time = 0;
 
 	/**
 	* Only used when board has templates stored in the database
 	*/
-	var $template_id = 0;
+	public $template_id = 0;
 
 	/**
 	* Store the  current action & most recent action to aid the uninstall building process
 	*/
-	var $last_action = array();
-	var $curr_action = array();
+	public $last_action = array();
+	public $curr_action = array();
 
 	/**
 	* Constructor method
 	* This is not called directly in AutoMOD
 	*/
-	function editor()
+	function __construct()
 	{
 
 	}
@@ -778,7 +778,7 @@ class editor
 */
 class editor_direct extends editor
 {
-	function editor_direct()
+	function __construct()
 	{
 		$this->write_method = WRITE_DIRECT;
 		$this->install_time = time();
@@ -1014,9 +1014,9 @@ class editor_direct extends editor
 
 class editor_ftp extends editor
 {
-	var $transfer;
+	public $transfer;
 
-	function editor_ftp()
+	function __construct()
 	{
 		global $config, $user;
 
@@ -1269,7 +1269,7 @@ class editor_ftp extends editor
 
 class editor_manual extends editor
 {
-	function editor_manual()
+	function __construct()
 	{
 		global $config, $phpbb_root_path;
 
